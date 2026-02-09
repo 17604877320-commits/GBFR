@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GBFR 泽塔配装调度中心 - @立夏</title>
+    <style>
+        :root {
+            --gb-blue: #2c3e50; --gb-gold: #d4af37; --bg-coffee: #eaddca;
+            --zeta-purple: #6a1b9a; --status-ok: #4caf50; --status-wait: #ff9800;
+        }
+        body { font-family: 'PingFang SC', sans-serif; background: var(--bg-coffee); color: var(--gb-blue); padding: 10px; margin: 0; }
+        .container { max-width: 500px; margin: 0 auto; }
+        
+        /* 武器祝福区 */
+        .weapon-card { background: #fff; border-radius: 12px; padding: 12px; margin-bottom: 15px; border-left: 6px solid var(--gb-gold); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .weapon-tag { background: var(--gb-gold); color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-right: 5px; }
+
+        /* 因子槽位 */
+        .slot-card { background: #fff; border-radius: 12px; padding: 10px 15px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 5px; position: relative; }
+        .slot-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .slot-num { font-weight: bold; color: var(--gb-gold); margin-right: 10px; }
+        .attr-main { font-weight: bold; font-size: 15px; }
+        .attr-sub { font-size: 14px; color: #666; }
+        
+        /* 交互按钮 */
+        .status-toggle { display: flex; gap: 8px; margin-top: 5px; }
+        .btn-check { flex: 1; padding: 6px; font-size: 12px; border-radius: 6px; border: 1px solid #ddd; background: #f9f9f9; cursor: pointer; text-align: center; }
+        .btn-check.active { background: #e3f2fd; border-color: #2196f3; color: #1976d2; font-weight: bold; }
+        .btn-check.occupied { background: #ffebee; border-color: #f44336; color: #d32f2f; }
+
+        /* 补齐建议 */
+        .advice-box { background: var(--gb-blue); color: #fff; padding: 15px; border-radius: 12px; margin-top: 20px; }
+        .advice-title { border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px; margin-bottom: 10px; font-weight: bold; display: flex; align-items: center; }
+        .advice-item { font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; }
+        .dot { width: 6px; height: 6px; background: var(--gb-gold); border-radius: 50%; margin-right: 10px; }
+
+        h2 { text-align: center; margin: 10px 0; font-size: 1.4rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>泽塔 (赛达) 配装计算器</h2>
+
+        <div class="weapon-card">
+            <div style="font-weight:bold; margin-bottom:5px;">⚔️ 武器祝福 (固定加成)</div>
+            <div style="font-size:14px; line-height:1.6;">
+                <span class="weapon-tag">20 昏厥</span> <span class="weapon-tag">15 追击</span> <span class="weapon-tag">10 怒涛</span>
+            </div>
+        </div>
+
+        <div id="slotList">
+            </div>
+
+        <div class="advice-box">
+            <div class="advice-title">💡 实时补齐与占用建议</div>
+            <div id="adviceContent"></div>
+        </div>
+
+        <footer style="text-align:center; margin:20px 0; opacity:0.5; font-size:12px;">Author: @立夏 | GBFR 配装调度</footer>
+    </div>
+
+    <script>
+        // 根据截图 3 录入的 12 个因子位数据 (共24属性)
+        const zetaConfig = [
+            { m: "热血", s: "暴君", cat: "输出" },
+            { m: "属转 (属性克制转换)", s: "激昂", cat: "核心" },
+            { m: "狂战士", s: "药水持有量", cat: "输出/生存" },
+            { m: "追击", s: "追击", cat: "输出" },
+            { m: "奋不顾身", s: "明镜止水", cat: "输出/生存" },
+            { m: "躲避性能", s: "自动复活", cat: "生存" },
+            { m: "烈焰 (专用)", s: "翔舞 (专用)", cat: "角色专用" },
+            { m: "战气", s: "迅捷能力", cat: "核心" },
+            { m: "秘纹 α", s: "伤害上限", cat: "秘纹上限" },
+            { m: "秘纹 α", s: "伤害上限", cat: "秘纹上限" },
+            { m: "秘纹 γ", s: "伤害上限", cat: "秘纹上限" },
+            { m: "秘纹 γ", s: "伤害上限", cat: "秘纹上限" }
+        ];
+
+        let userState = new Array(12).fill(0); // 0:未拥有, 1:已装备
+
+        function render() {
+            const list = document.getElementById('slotList');
+            list.innerHTML = '';
+            
+            zetaConfig.forEach((item, i) => {
+                const div = document.createElement('div');
+                div.className = 'slot-card';
+                div.innerHTML = `
+                    <div class="slot-header">
+                        <div><span class="slot-num">${i+1}</span><span class="attr-main">${item.m}</span></div>
+                        <span style="font-size:11px; color:#999;">${item.cat}</span>
+                    </div>
+                    <div class="attr-sub">副属性：<strong>${item.s}</strong></div>
+                    <div class="status-toggle">
+                        <div class="btn-check ${userState[i]===1?'active':''}" onclick="toggleSlot(${i}, 1)">✅ 确定拥有</div>
+                        <div class="btn-check ${userState[i]===0?'':''}" onclick="toggleSlot(${i}, 0)">❌ 缺位/占用中</div>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+            updateAdvice();
+        }
+
+        function toggleSlot(idx, status) {
+            userState[idx] = status;
+            render();
+        }
+
+        function updateAdvice() {
+            const content = document.getElementById('adviceContent');
+            let tips = [];
+            
+            // 检查秘纹/上限完成度
+            const limitCount = userState.slice(8, 12).filter(s => s === 1).length;
+            if(limitCount < 4) tips.push(`还差 ${4-limitCount} 个【秘纹+上限】位，当前伤害容易触碰天花板。`);
+
+            // 检查生存核心
+            if(userState[2] === 0) tips.push(`缺位【药水】，建议通过合成将“狂战士”或“热血”与药水挂钩。`);
+            if(userState[5] === 0) tips.push(`核心生存词条【躲避性能】缺失，泽塔在高频战斗中风险较大。`);
+
+            // 检查追击
+            if(userState[3] === 0) tips.push(`【双追击】因子尚未勾选，这可是泽塔拉开输出差距的关键。`);
+
+            content.innerHTML = tips.length > 0 
+                ? tips.map(t => `<div class="advice-item"><div class="dot"></div>${t}</div>`).join('')
+                : `<div class="advice-item" style="color:var(--gb-gold)">✨ 泽塔配装已完全补齐！可以前往下一位角色。</div>`;
+        }
+
+        render();
+    </script>
+</body>
+</html>

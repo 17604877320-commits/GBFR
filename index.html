@@ -3,123 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GBFR 因子等级对照 - @立夏</title>
+    <title>GBFR 因子对照 Pro - @立夏</title>
     <style>
-        :root { --gold: #d4af37; --brown: #5d4037; --coffee: #eaddca; --bg: #fdfaf5; --green: #27ae60; }
+        :root { --gold: #d4af37; --brown: #5d4037; --coffee: #eaddca; --bg: #fdfaf5; --green: #27ae60; --red: #e74c3c; }
         body { font-family: sans-serif; background: var(--coffee); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        .main-layout { display: flex; gap: 15px; width: 100%; max-width: 1100px; align-items: flex-start; }
+        .main-layout { display: flex; gap: 15px; width: 100%; max-width: 1200px; align-items: flex-start; }
         
-        /* 左侧：目标等级清单 */
-        .target-list { flex: 1.2; background: var(--brown); color: #fff; padding: 15px; border-radius: 12px; position: sticky; top: 10px; }
+        /* 左侧：目标清单与祝福 */
+        .left-panel { flex: 1.2; position: sticky; top: 10px; display: flex; flex-direction: column; gap: 15px; }
+        .target-list, .weapon-status { background: var(--brown); color: #fff; padding: 15px; border-radius: 12px; }
         .target-item { display: flex; justify-content: space-between; padding: 6px 0; font-size: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .target-item.met { color: var(--gold); }
-        .lv-tag { font-family: monospace; }
-        .met-icon { color: var(--green); margin-left: 5px; font-weight: bold; }
-
+        
+        /* 颜色状态 */
+        .status-over { background: rgba(231, 76, 60, 0.2); color: var(--red) !important; font-weight: bold; }
+        .status-met { color: var(--green) !important; }
+        
         /* 右侧：因子填表 */
         .slot-section { flex: 2; background: var(--bg); padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .slot-box { border: 1px solid #ddd; padding: 12px; border-radius: 10px; margin-bottom: 12px; background: #fff; }
-        .slot-title { font-weight: bold; font-size: 14px; margin-bottom: 8px; color: var(--brown); display: flex; justify-content: space-between; }
+        .bless-box { border: 2px solid var(--gold); background: #fffdf0; padding: 12px; border-radius: 10px; margin-bottom: 20px; }
         .input-row { display: flex; gap: 5px; align-items: center; margin-bottom: 5px; }
         select { flex: 2; padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-size: 13px; }
-        input[type="number"] { flex: 0.6; padding: 8px; border-radius: 5px; border: 1px solid #ccc; text-align: center; }
+        .lv-input { width: 50px; padding: 8px; border-radius: 5px; border: 1px solid #ccc; text-align: center; }
 
-        .header { text-align: center; width: 100%; margin-bottom: 15px; }
-        button { margin-top: 10px; padding: 12px; background: var(--brown); color: var(--gold); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .checkbox-row { display: flex; align-items: center; gap: 10px; margin-top: 5px; font-size: 14px; color: var(--gold); }
+        button { margin-top: 10px; width: 100%; padding: 12px; background: var(--brown); color: var(--gold); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
         
-        @media (max-width: 800px) { .main-layout { flex-direction: column; } .target-list { position: static; width: 100%; } }
+        @media (max-width: 850px) { .main-layout { flex-direction: column; } .left-panel { position: static; width: 100%; } }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h2 style="margin:0; color:var(--brown);">泽塔因子量化对照 (Author: @立夏)</h2>
-        <div style="font-size:12px; margin-top:5px; color:#666;">[祝福固定值：20昏厥 / 15追击 / 10怒涛]</div>
+    <div class="header" style="text-align:center; margin-bottom:15px;">
+        <h2 style="margin:0; color:var(--brown);">泽塔因子量化专家系统</h2>
+        <footer style="opacity:0.6; font-size:12px;">Author: @立夏</footer>
     </div>
 
     <div class="main-layout">
-        <div class="target-list">
-            <h4 style="margin:0 0 10px 0; border-bottom:1px solid var(--gold)">目标等级清单</h4>
-            <div id="targetDisplay"></div>
+        <div class="left-panel">
+            <div class="weapon-status">
+                <h4 style="margin:0 0 10px 0; color:var(--gold);">⚔️ 武器配置</h4>
+                <div class="checkbox-row">
+                    <input type="checkbox" id="isBahamut" onchange="render()"> 
+                    <label for="isBahamut">开启满觉醒巴武 (全技能+1)</label>
+                </div>
+                <div id="blessDisplay" style="font-size:12px; margin-top:10px; color:#ddd;"></div>
+            </div>
+
+            <div class="target-list">
+                <h4 style="margin:0 0 10px 0; border-bottom:1px solid var(--gold)">因子目标对照 (当前/目标)</h4>
+                <div id="targetDisplay"></div>
+            </div>
         </div>
 
         <div class="slot-section">
+            <div class="bless-box">
+                <div style="font-weight:bold; font-size:14px; margin-bottom:10px; color:var(--brown);">💎 武器祝福录入 (等级独立)</div>
+                <div id="blessInputs"></div>
+            </div>
+
             <div id="slotContainer"></div>
-            <button onclick="resetAll()" style="background:#c0392b; color:#fff;">清空全部数据</button>
+            <button onclick="resetAll()" style="background:#c0392b; color:#fff;">清空全部配装</button>
         </div>
     </div>
 
     <script>
-        // 1. 定义推荐属性及其目标等级 (根据你的截图)
-        // 伤害上限出现了4次，所以目标是 15*4 = 60，以此类推
+        // 1. 泽塔推荐属性与其最高有效等级上限
+        const capConfig = { "伤害上限": 65, "热血": 45, "暴君": 45, "激昂": 45, "迅捷": 45, "怒涛": 20, "追击": 45 };
+        
         const rawRecommended = ["热血", "暴君", "属转", "激昂", "狂战士", "药水", "追击", "追击", "奋不顾身", "明镜止水", "躲避性能", "自动复活", "烈焰", "翔舞", "战气", "迅捷", "秘纹α", "伤害上限", "秘纹α", "伤害上限", "秘纹γ", "伤害上限", "秘纹γ", "伤害上限"];
         
         const targetConfig = {};
-        rawRecommended.forEach(attr => {
-            targetConfig[attr] = (targetConfig[attr] || 0) + 15;
-        });
+        rawRecommended.forEach(attr => { targetConfig[attr] = (targetConfig[attr] || 0) + 15; });
 
-        const attrPool = ["空缺", ...new Set(rawRecommended), "豪胆", "回避距离", "高扬", "守护", "坚持"];
+        const attrPool = ["空缺", ...new Set(rawRecommended), "昏厥", "怒涛", "豪胆", "回避距离", "高扬"];
 
-        // 初始12个槽位，默认等级15
-        let currentSlots = Array.from({length: 12}, () => ({ 
-            main: "空缺", mainLv: 15, 
-            sub: "空缺", subLv: 15 
-        }));
+        // 数据结构
+        let isBahamut = false;
+        let blessSlots = [
+            { attr: "昏厥", lv: 20 },
+            { attr: "追击", lv: 15 },
+            { attr: "怒涛", lv: 10 }
+        ];
+        let currentSlots = Array.from({length: 12}, () => ({ main: "空缺", sub: "空缺", lv: 15 }));
 
         function render() {
-            // 计算当前各属性总等级
+            isBahamut = document.getElementById('isBahamut').checked;
             const currentStats = {};
-            currentSlots.forEach(s => {
-                if(s.main !== "空缺") currentStats[s.main] = (currentStats[s.main] || 0) + s.mainLv;
-                if(s.sub !== "空缺") currentStats[s.sub] = (currentStats[s.sub] || 0) + s.subLv;
+            const addLv = isBahamut ? 1 : 0;
+
+            // 统计武器祝福
+            blessSlots.forEach(b => {
+                if(b.attr !== "空缺") currentStats[b.attr] = (currentStats[b.attr] || 0) + b.lv;
             });
 
-            // 渲染左侧
+            // 统计因子 (主副同步等级 + 巴武加成)
+            currentSlots.forEach(s => {
+                if(s.main !== "空缺") currentStats[s.main] = (currentStats[s.main] || 0) + (s.lv + addLv);
+                if(s.sub !== "空缺") currentStats[s.sub] = (currentStats[s.sub] || 0) + (s.lv + addLv);
+            });
+
+            // 渲染左侧列表
             const targetDiv = document.getElementById('targetDisplay');
             targetDiv.innerHTML = Object.keys(targetConfig).map(attr => {
                 const targetLv = targetConfig[attr];
                 const currentLv = currentStats[attr] || 0;
-                const isMet = currentLv >= targetLv;
+                const cap = capConfig[attr] || 99; // 无预设上限则默认为99
+                
+                let statusClass = "";
+                if (currentLv > cap) statusClass = "status-over";
+                else if (currentLv >= targetLv) statusClass = "status-met";
+
                 return `
-                    <div class="target-item ${isMet ? 'met' : ''}">
+                    <div class="target-item ${statusClass}">
                         <span>${attr}</span>
-                        <span class="lv-tag">目标 ${targetLv} | 实测 ${currentLv}${isMet ? '<span class="met-icon">✔</span>' : ''}</span>
+                        <span>实测 ${currentLv} / 目标 ${targetLv}</span>
                     </div>
                 `;
             }).join('');
 
-            // 渲染右侧
+            // 渲染祝福输入
+            const blessDiv = document.getElementById('blessInputs');
+            blessDiv.innerHTML = blessSlots.map((b, i) => `
+                <div class="input-row">
+                    <select onchange="updateBless(${i}, 'attr', this.value)">
+                        ${attrPool.map(a => `<option value="${a}" ${b.attr === a ? 'selected' : ''}>${a}</option>`).join('')}
+                    </select>
+                    <input type="number" class="lv-input" value="${b.lv}" oninput="updateBless(${i}, 'lv', parseInt(this.value)||0)">
+                </div>
+            `).join('');
+
+            // 渲染因子槽位
             const container = document.getElementById('slotContainer');
             container.innerHTML = currentSlots.map((slot, i) => `
                 <div class="slot-box">
-                    <div class="slot-title"><span>因子槽位 ${i + 1}</span></div>
+                    <div class="slot-title"><span>槽位 ${i + 1}</span> <input type="number" class="lv-input" style="height:25px" value="${slot.lv}" oninput="updateSlot(${i}, 'lv', parseInt(this.value)||0)"></div>
                     <div class="input-row">
                         <select onchange="updateSlot(${i}, 'main', this.value)">
-                            ${attrPool.map(a => `<option value="${a}" ${slot.main === a ? 'selected' : ''}>${a}</option>`).join('')}
+                            ${attrPool.map(a => `<option value="${a}" ${slot.main === a ? 'selected' : ''}>主：${a}</option>`).join('')}
                         </select>
-                        <input type="number" value="${slot.mainLv}" oninput="updateSlot(${i}, 'mainLv', parseInt(this.value)||0)" placeholder="Lv">
-                    </div>
-                    <div class="input-row">
                         <select onchange="updateSlot(${i}, 'sub', this.value)">
-                            ${attrPool.map(a => `<option value="${a}" ${slot.sub === a ? 'selected' : ''}>${a}</option>`).join('')}
+                            ${attrPool.map(a => `<option value="${a}" ${slot.sub === a ? 'selected' : ''}>副：${a}</option>`).join('')}
                         </select>
-                        <input type="number" value="${slot.subLv}" oninput="updateSlot(${i}, 'subLv', parseInt(this.value)||0)" placeholder="Lv">
                     </div>
                 </div>
             `).join('');
         }
 
-        function updateSlot(index, field, value) {
-            currentSlots[index][field] = value;
-            render();
-        }
-
-        function resetAll() {
-            if(confirm("确定要清空所有已录入的因子吗？")) {
-                currentSlots = Array.from({length: 12}, () => ({ main: "空缺", mainLv: 15, sub: "空缺", subLv: 15 }));
-                render();
-            }
-        }
+        function updateSlot(i, field, val) { currentSlots[i][field] = val; render(); }
+        function updateBless(i, field, val) { blessSlots[i][field] = val; render(); }
+        function resetAll() { if(confirm("清空？")) { currentSlots = Array.from({length: 12}, () => ({ main: "空缺", sub: "空缺", lv: 15 })); render(); } }
 
         render();
     </script>

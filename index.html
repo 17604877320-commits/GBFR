@@ -3,151 +3,320 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GBFR 全角色因子对照 - @立夏</title>
+    <title>GBRF因子配装工具by立夏</title>
     <style>
-        :root { --gold: #d4af37; --brown: #5d4037; --coffee: #eaddca; --bg: #fdfaf5; --green: #27ae60; --red: #e74c3c; }
-        body { font-family: sans-serif; background: var(--coffee); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        .main-layout { display: flex; gap: 15px; width: 100%; max-width: 1200px; align-items: flex-start; }
-        .left-panel { flex: 1.2; position: sticky; top: 10px; display: flex; flex-direction: column; gap: 15px; }
-        .target-box { background: var(--brown); color: #fff; padding: 15px; border-radius: 12px; }
-        .panel-title { margin: 0 0 10px 0; border-bottom: 2px solid var(--gold); padding-bottom: 5px; color: var(--gold); }
-        .target-item { display: flex; justify-content: space-between; padding: 8px 12px; font-size: 13px; margin-bottom: 4px; border-radius: 6px; background: rgba(255,255,255,0.05); color: #ccc; }
-        .status-over { background-color: var(--red) !important; color: white !important; font-weight: bold; }
+        :root { --gold: #d4af37; --brown: #5d4037; --coffee: #eaddca; --bg: #fdfaf5; --green: #27ae60; --red: #e74c3c; --blue: #3498db; --purple: #9b59b6; }
+        body { font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--coffee); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; color: #333; }
+        .main-layout { display: flex; gap: 15px; width: 100%; max-width: 1400px; align-items: flex-start; }
+        
+        .left-panel { flex: 1; position: sticky; top: 10px; display: flex; flex-direction: column; gap: 10px; min-width: 280px; }
+        .target-box { background: var(--brown); color: #fff; padding: 12px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .target-header { border-bottom: 2px solid var(--gold); padding-bottom: 5px; margin-bottom: 8px; font-weight: bold; color: var(--gold); font-size: 14px; }
+        .target-item { display: flex; justify-content: space-between; padding: 5px 8px; font-size: 12px; margin-bottom: 3px; border-radius: 4px; background: rgba(255,255,255,0.08); align-items: center; }
+        
+        /* 状态颜色 */
+        .status-over { background-color: var(--red) !important; color: white !important; font-weight: bold; box-shadow: 0 0 5px rgba(231, 76, 60, 0.5); }
         .status-met { background-color: var(--green) !important; color: white !important; }
-        .right-panel { flex: 2; background: var(--bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .input-group { background: #fff; border: 1px solid #ddd; padding: 12px; border-radius: 10px; margin-bottom: 12px; }
-        .bless-group { border: 2px solid var(--gold); background: #fffdf0; }
-        .input-row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
-        select { flex: 2; padding: 8px; border-radius: 6px; border: 1px solid #ccc; background: white; }
-        .lv-input { width: 60px; padding: 8px; border-radius: 6px; border: 1px solid #ccc; text-align: center; }
-        .top-ctrl { background: var(--brown); color: var(--gold); padding: 15px; border-radius: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
-        button { width: 100%; padding: 12px; background: #c0392b; color: #fff; border: none; border-radius: 8px; cursor: pointer; }
-        @media (max-width: 850px) { .main-layout { flex-direction: column; } .left-panel { position: static; width: 100%; } }
+
+        .right-panel { flex: 2; background: var(--bg); padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .ctrl-bar { background: #fff; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border: 1px solid #ddd; }
+        .role-select { padding: 6px; border-radius: 4px; border: 1px solid var(--brown); font-weight: bold; color: var(--brown); font-size: 14px; }
+        
+        .input-section { display: flex; flex-direction: column; gap: 8px; }
+        .slot-row { display: flex; gap: 8px; align-items: center; background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #eee; }
+        .slot-label { font-size: 12px; font-weight: bold; color: #666; width: 50px; }
+        select { flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; background: #fff; }
+        .lv-input { width: 45px; text-align: center; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; }
+
+        .btn-group { display: flex; gap: 8px; margin-top: 15px; }
+        button { padding: 10px 15px; border: none; border-radius: 6px; font-weight: bold; color: #fff; cursor: pointer; font-size: 13px; transition: 0.2s; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-save { background: var(--green); flex: 1; }
+        .btn-opt { background: var(--purple); flex: 2; }
+        .btn-rand { background: var(--blue); flex: 1; }
+        .btn-reset { background: var(--red); width: 80px; }
+        
+        .pool-section { width: 100%; max-width: 1400px; background: #fff; margin-top: 20px; padding: 15px; border-radius: 12px; border: 2px dashed var(--brown); box-sizing: border-box; }
+        .pool-add-row { display: flex; gap: 8px; align-items: center; background: #f0f8ff; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--blue); }
+        .pool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+        .pool-item { background: #f9f9f9; border: 1px solid #ddd; padding: 8px; border-radius: 6px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; }
+        
+        footer { margin-top: 30px; font-size: 14px; color: var(--brown); font-weight: bold; opacity: 0.8; }
+        
+        @media (max-width: 800px) { .main-layout { flex-direction: column; } .left-panel { width: 100%; position: static; } }
     </style>
 </head>
 <body>
-    <div style="text-align:center; margin-bottom:15px;">
-        <h2 style="margin:0; color:var(--brown);">GBFR 全角色因子对照中心</h2>
-        <small>Author: @立夏 | 数据同步: 2026-02-09</small>
-    </div>
+
+    <h2 style="margin:10px; color:var(--brown);">GBRF因子配装工具by立夏</h2>
 
     <div class="main-layout">
         <div class="left-panel">
-            <div class="target-box"><h4 class="panel-title">武器祝福目标</h4><div id="blessTargetDisplay"></div></div>
-            <div class="target-box"><h4 class="panel-title">角色因子目标</h4><div id="factorTargetDisplay"></div></div>
+            <div class="target-box">
+                <div class="target-header">💎 武器祝福</div>
+                <div id="blessTargetDisplay"></div>
+            </div>
+            <div class="target-box">
+                <div class="target-header">🛡️ 角色因子目标</div>
+                <div id="factorTargetDisplay"></div>
+            </div>
         </div>
 
         <div class="right-panel">
-            <div class="top-ctrl">
-                <div>角色：<select id="roleSelector" onchange="switchRole()" style="background:white; border-radius:5px; padding:5px;"></select></div>
-                <div><input type="checkbox" id="bahamutCheck" onchange="render()"> <label for="bahamutCheck">巴武全觉醒</label></div>
+            <div class="ctrl-bar">
+                <div>
+                    角色：<select id="roleSelector" class="role-select" onchange="switchRole()"></select>
+                </div>
+                <div>
+                    <input type="checkbox" id="bahamutCheck" onchange="render()">
+                    <label for="bahamutCheck" style="font-size:13px; font-weight:bold; cursor:pointer;">巴武全觉醒 (+1)</label>
+                </div>
             </div>
-            <div class="input-group bless-group"><div style="font-weight:bold; color:var(--brown);">💎 武器祝福</div><div id="blessInputs"></div></div>
-            <div id="factorInputs"></div>
-            <button onclick="resetData()">重置当前配装</button>
+
+            <div style="background:var(--coffee); padding:10px; border-radius:8px; margin-bottom:10px;">
+                <div style="font-size:12px; font-weight:bold; margin-bottom:5px; color:var(--brown);">💎 武器祝福</div>
+                <div id="blessInputs" class="input-section"></div>
+            </div>
+
+            <div id="factorInputs" class="input-section"></div>
+
+            <div class="btn-group">
+                <button class="btn-opt" onclick="autoOptimize()">🧠 智能配装 (卸下因子自动入库)</button>
+                <button class="btn-rand" onclick="randomFill()">🎲 随机填充测试</button>
+            </div>
+            <div class="btn-group">
+                <button class="btn-save" onclick="saveData()">💾 保存所有数据</button>
+                <button class="btn-reset" onclick="resetData()">🧹 清空</button>
+            </div>
         </div>
     </div>
 
+    <div class="pool-section">
+        <h3 style="margin:0 0 10px 0; color:var(--brown); font-size:16px;">📦 库存因子仓库</h3>
+        <div class="pool-add-row">
+            <span style="font-weight:bold; color:var(--blue); font-size:12px;">入库:</span>
+            <select id="newMain"></select>
+            <select id="newSub"></select>
+            <input type="number" id="newLv" class="lv-input" value="15">
+            <button class="btn-rand" style="width:60px; padding:6px;" onclick="addToPool()">添加</button>
+        </div>
+        <div class="pool-grid" id="poolGrid"></div>
+    </div>
+
+    <footer>Author: @立夏</footer>
+
     <script>
+        // --- 1. 全量数据 (数据清洗完毕) ---
         const roleData = {
-            "1泽塔": { bless:{"昏厥":20,"追击":15,"怒涛":10}, factors:["热血","暴君","属转","激昂","狂战士","药水","追击","追击","奋不顾身","明镜止水","躲避性能","自动复活","烈焰","翔舞","战气","迅捷能力","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "2卡爷": { bless:{"昏厥":20,"追击":15,"奋不顾身":10}, factors:["热血","暴君","属转","迅捷能力","狂战士","药水","追击","追击","能力伤害","明镜止水","躲避性能","自动复活","真理","迅捷能力","战气","迅捷能力","秘纹β","伤害上限","秘纹β","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "3齐格飞": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","激昂","狂战士","药水","追击","追击","躲避性能","自动复活","暴击","明镜止水","(迅捷)","(豪胆)","战气","明镜止水","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "4菲莉": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","激昂","狂战士","药水","追击","追击","躲避性能","自动复活","连击加成","暴击","躲避距离","明镜止水","战气","迅捷能力","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "5姬塔": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","激昂","狂战士","药水","追击","追击","躲避性能","自动复活","暴击","明镜止水","英勇神速","怒涛","英勇之心","迅捷能力","秘纹β","伤害上限","秘纹β","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "6夏洛特": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","激昂","狂战士","药水","追击","追击","连击加成","自动复活","弱点攻击","连击收招","威光","暴击","战气","明镜止水","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "7奶刀": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","明镜止水","狂战士","药水","追击","追击","奋/快蓄","自动复活","能力伤害","暴击","梦幻","武艺","战气","躲避性能","伤害上限","迅捷能力","秘纹γ","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "8伊欧": { bless:{"昏厥":20,"追击":15,"蓄力会心":10}, factors:["热血","暴君","属转","迅捷能力","狂战士","药水","追击","追击","快速蓄力","躲避性能","躲避距离","自动复活","心愿","伶俐","战气","怒涛","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "9索恩": { bless:{"昏厥":20,"追击":15,"怒涛":10}, factors:["二王","+","热血","暴君","属转","迅捷能力","狂战士","药水","追击","追击","快速蓄力","暴击","暴君","躲避性能","万箭","凛冽","战气","激昂/隐匿","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "10伊德": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","暴击","狂战士","药水","追击","追击","暴击","豪胆","躲避性能","自动复活","异能战意","异能增长","异能之心","明镜止水","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "11老七": { bless:{"昏厥":20,"药水":15,"怒涛":10}, factors:["热血","暴君","属转","迅捷能力","狂战士","药水","追击","明镜止水","追击","追击","连击加成","暴君","七星","+","躲避性能","自动复活","闪刃","暴击","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "12卡姐": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","激昂","狂战士","药水","追击","追击","暴击","弱点攻击","能力伤害","自动复活","决心","骄傲","奋不顾身","明镜止水","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "13炎帝": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","迅捷能力","狂战士","药水","追击","追击","暴击","奋不顾身/怒涛","快速蓄力","自动复活","王者进行","躲避性能","王者战气","明镜止水","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "14萝赛塔": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","迅捷能力","狂战士","药水","追击","追击","追击","豪胆/自活","暴击","迅捷能力","暴击","自动复活","玫瑰早绽","躲避性能","玫瑰战气","明镜止水","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "15兰斯": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","激昂","摇曳步","药水","追击","追击","暴击","自动复活","连击加成","迅捷能力","刀上舞","迅捷能力","白龙战气","明镜止水","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "16水老头": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","迅捷能力","狂战士","药水","追击","追击","暴击","自动复活","暴击","迅捷能力","能力伤害","怒涛","妖剑士","躲避性能","战气","明镜止水","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "17圣德芬": { bless:{"昏厥":20,"暴击":15,"自活":10}, factors:["热血","暴君","属转","迅捷能力","狂战士","药水","追击","追击","连击加成","暴君/刀舞","集中炮火","圣不屈身/暴伤","无恙","+","战气","明镜止水","伤害上限","秘纹α/格挡/隐匿","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "18巴叔": { bless:{"昏厥":20,"追击":15,"蓄力会心":10}, factors:["背水","暴君","属转","迅捷能力","狂战士","药水","追击","追击","奋不顾身","蓄力攻击","快速蓄力","暴击伤害","幽冥自若","明镜止水","战气","躲避性能","伤害上限","豪胆","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "19欧根": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","迅捷能力","狂战士","药水","追击","追击","快速蓄力","快蓄/炮火/刀上舞","天眼","明镜止水","战气","躲避性能","秘纹β","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "20巴恩": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","激昂","狂战士","药水","追击","追击","连击加成","连击收招","弱点攻击","奋不顾身/暴伤","毅力","暴击","战气","躲避性能","伤害上限","自动复活","秘纹γ","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "21拉卡姆": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","迅捷能力","狂战士","药水","追击","追击","快速蓄力","明镜止水","暴击","隐匿/激昂","指引","坚持","战气","躲避性能","伤害上限","自动复活","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
-            "22牛爷爷": { bless:{"弱点":20,"追击":15,"蓄力会心":10}, factors:["热血","暴君","属转","迅捷能力","狂战士","药水","追击","追击","奋不顾身","蓄力攻击","暴击伤害","自动复活","强者","明镜止水","战气","躲避性能","秘纹α/管原","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] }
+            "肉装": { bless:{"自愈":20,"守护":15,"坚守":10}, factors:["自动药水","药水","守护","守护","守护","自愈","自愈","自愈","自动复活","体力","刚健","坚守","豪胆","匿踪","不动","金刚","金刚"] },
+            "泽塔": { bless:{"昏厥":20,"追击":15,"怒涛":10}, factors:["热血","暴君","属转","激昂","狂战士","药水","追击","追击","奋不顾身","明镜止水","躲避性能","自动复活","烈焰","翔舞","战气","迅捷能力","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "卡爷": { bless:{"昏厥":20,"追击":15,"奋不顾身":10}, factors:["热血","暴君","属转","迅捷能力","狂战士","药水","追击","追击","能力伤害","明镜止水","躲避性能","自动复活","真理","迅捷能力","战气","迅捷能力","秘纹β","伤害上限","秘纹β","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "齐格飞": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","激昂","狂战士","药水","追击","追击","躲避性能","自动复活","暴击","明镜止水","迅捷能力","豪胆","战气","明镜止水","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "菲莉": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","激昂","狂战士","药水","追击","追击","躲避性能","自动复活","连击加成","暴击","躲避距离","明镜止水","战气","迅捷能力","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "姬塔": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","激昂","狂战士","药水","追击","追击","躲避性能","自动复活","暴击","明镜止水","英勇神速","怒涛","英勇之心","迅捷能力","秘纹β","伤害上限","秘纹β","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "夏洛特": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","激昂","狂战士","药水","追击","追击","连击加成","自动复活","弱点攻击","连击收招","威光","暴击","战气","明镜止水","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "奶刀": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","明镜止水","狂战士","药水","追击","追击","奋不顾身","快速蓄力","自动复活","能力伤害","暴击","梦幻","武艺","战气","躲避性能","伤害上限","迅捷能力","秘纹γ","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "伊欧": { bless:{"昏厥":20,"追击":15,"蓄力会心":10}, factors:["热血","暴君","属转","迅捷能力","狂战士","药水","追击","追击","快速蓄力","躲避性能","躲避距离","自动复活","心愿","伶俐","战气","怒涛","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "索恩": { bless:{"昏厥":20,"刀上舞":15,"怒涛":10}, factors:["二王+","热血","暴君","属转","迅捷能力","狂战士","药水","追击","追击","快速蓄力","暴击","暴君","躲避性能","万箭","凛冽","战气","激昂","隐匿","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "伊德": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","暴击","狂战士","药水","追击","追击","暴击","豪胆","躲避性能","自动复活","异能战意","异能增长","异能之心","明镜止水","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "老七": { bless:{"昏厥":20,"药水":15,"怒涛":10}, factors:["热血","暴君","属转","迅捷能力","狂战士","药水","追击","明镜止水","追击","追击","连击加成","暴君","七星+","躲避性能","自动复活","闪刃","暴击","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "卡姐": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","激昂","狂战士","药水","追击","追击","暴击","弱点攻击","能力伤害","自动复活","决心","骄傲","奋不顾身","明镜止水","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "炎帝": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","迅捷能力","狂战士","药水","追击","追击","暴击","奋不顾身","怒涛","快速蓄力","自动复活","王者进行","躲避性能","王者战气","明镜止水","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "萝赛塔": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","迅捷能力","狂战士","药水","追击","追击","追击","豪胆","自动复活","暴击","迅捷能力","暴击","自动复活","玫瑰早绽","躲避性能","玫瑰战气","明镜止水","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "兰斯": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","激昂","摇曳步","药水","追击","追击","暴击","自动复活","连击加成","迅捷能力","刀上舞","迅捷能力","白龙战气","明镜止水","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "水老头": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","迅捷能力","狂战士","药水","追击","追击","暴击","自动复活","暴击","迅捷能力","能力伤害","怒涛","妖剑士","躲避性能","战气","明镜止水","秘纹α","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "圣德芬": { bless:{"昏厥":20,"暴击":15,"自动复活":10}, factors:["热血","暴君","属转","迅捷能力","狂战士","药水","追击","追击","连击加成","暴君","刀上舞","集中炮火","奋不顾身","暴击伤害","无态+","战气","明镜止水","伤害上限","秘纹α","格挡","隐匿","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "巴叔": { bless:{"昏厥":20,"追击":15,"蓄力会心":10}, factors:["背水","暴君","属转","迅捷能力","狂战士","药水","追击","追击","奋不顾身","蓄力攻击","快速蓄力","暴击伤害","幽冥自若","明镜止水","战气","躲避性能","伤害上限","豪胆","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "欧根": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","迅捷能力","狂战士","药水","追击","追击","快速蓄力","快速蓄力","集中炮火","刀上舞","天眼","明镜止水","战气","躲避性能","秘纹β","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "巴恩": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","激昂","狂战士","药水","追击","追击","连击加成","连击收招","弱点攻击","奋不顾身","暴击伤害","毅力","暴击","战气","躲避性能","伤害上限","自动复活","秘纹γ","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "拉卡姆": { bless:{"昏厥":20,"追击":15,"暴击":10}, factors:["热血","暴君","属转","迅捷能力","狂战士","药水","追击","追击","快速蓄力","明镜止水","暴击","隐匿","激昂","指引","坚持","战气","躲避性能","伤害上限","自动复活","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] },
+            "牛爷爷": { bless:{"弱点攻击":20,"追击":15,"蓄力会心":10}, factors:["热血","暴君","属转","迅捷能力","狂战士","药水","追击","追击","奋不顾身","蓄力攻击","暴击伤害","自动复活","强者","明镜止水","战气","躲避性能","秘纹α","昏厥","伤害上限","秘纹α","伤害上限","秘纹γ","伤害上限","秘纹γ","伤害上限"] }
         };
 
-        const hardCaps = { "伤害上限": 65, "热血": 45, "暴君": 45, "激昂": 45, "迅捷能力": 45, "怒涛": 20, "追击": 45, "属转": 15, "药水": 15, "昏厥": 50, "狂战士": 15, "奋不顾身": 15, "明镜止水": 15, "躲避性能": 15, "自动复活": 15, "烈焰": 15, "翔舞": 15, "战气": 15, "秘纹α": 30, "秘纹γ": 30, "迅捷": 15, "暴击": 50, "能力伤害": 30, "真理": 15, "连击加成": 30, "连击收招": 15, "弱点攻击": 30, "威光": 15, "快速蓄力": 30, "心愿": 15, "伶俐": 15, "异能战意": 15, "异能增长": 15, "异能之心": 15, "决心": 15, "骄傲": 15, "王者进行": 15, "王者战气": 15, "玫瑰早绽": 15, "玫瑰战气": 15, "刀上舞": 15, "白龙战气": 15, "妖剑士": 15, "集中炮火": 15, "背水": 45, "幽冥自若": 15, "天眼": 15, "毅力": 15, "指引": 15, "坚持": 15, "强者": 15 };
-        
-        let currentRoleKey = "1泽塔";
-        let blessData = Array(3).fill(null).map(() => ({attr: "空缺", lv: 0}));
-        let factorData = Array(12).fill(null).map(() => ({main: "空缺", sub: "空缺", lv: 15}));
+        // --- 2. 属性排序 (按全角色频率) ---
+        const allFactorAttrs = Object.values(roleData).flatMap(r => r.factors);
+        const freqMap = {}; 
+        allFactorAttrs.forEach(a => freqMap[a] = (freqMap[a] || 0) + 1);
+        const sortedAttrs = Object.keys(freqMap).sort((a,b) => freqMap[b] - freqMap[a]);
+        // 选项池：频率排序 + 特殊词条
+        const finalPool = ["空缺", ...sortedAttrs, "豪胆", "回避距离", "回避性能", "自动药水", "守护", "自愈", "体力", "刚健", "坚守", "匿踪", "不动", "坚持", "金刚"];
+
+        // --- 3. 状态管理 ---
+        let currentRole = "泽塔";
+        let blessData = JSON.parse(localStorage.getItem('gbfr_bless_v13')) || Array(3).fill(null).map(() => ({attr: "空缺", lv: 0}));
+        let factorData = JSON.parse(localStorage.getItem('gbfr_factor_v13')) || Array(12).fill(null).map(() => ({main: "空缺", sub: "空缺", lv: 15}));
+        let poolData = JSON.parse(localStorage.getItem('gbfr_pool_v13')) || [];
 
         function init() {
             const sel = document.getElementById('roleSelector');
             Object.keys(roleData).forEach(k => sel.options.add(new Option(k, k)));
-            switchRole();
-        }
-
-        function switchRole() {
-            currentRoleKey = document.getElementById('roleSelector').value;
+            
+            const fillOpts = (domId) => {
+                const dom = document.getElementById(domId);
+                dom.innerHTML = "";
+                finalPool.forEach(a => dom.options.add(new Option(a, a)));
+            };
+            fillOpts('newMain'); fillOpts('newSub');
             render();
         }
+
+        function switchRole() { currentRole = document.getElementById('roleSelector').value; render(); }
 
         function render() {
-            const data = roleData[currentRoleKey];
             const isBahamut = document.getElementById('bahamutCheck').checked;
-            const currentStats = {};
-
-            blessData.forEach(d => { if(d.attr !== "空缺") currentStats[d.attr] = (currentStats[d.attr] || 0) + d.lv; });
+            const config = roleData[currentRole];
+            
+            // 1. 统计总等级 (因子+祝福)
+            const stats = {};
+            // 因子统计
             factorData.forEach(d => {
-                if(d.main !== "空缺") currentStats[d.main] = (currentStats[d.main] || 0) + d.lv;
-                if(d.sub !== "空缺") currentStats[d.sub] = (currentStats[d.sub] || 0) + d.lv;
+                if(d.main !== "空缺") stats[d.main] = (stats[d.main] || 0) + d.lv;
+                if(d.sub !== "空缺" && d.sub !== "固定(N/A)") stats[d.sub] = (stats[d.sub] || 0) + d.lv;
             });
+            // 祝福统计
+            blessData.forEach(d => { if(d.attr !== "空缺") stats[d.attr] = (stats[d.attr] || 0) + d.lv; });
 
-            if (isBahamut) { Object.keys(currentStats).forEach(a => { if(currentStats[a]>0) currentStats[a]+=1; }); }
-
-            // 武器祝福看板 (仅算祝福位)
-            document.getElementById('blessTargetDisplay').innerHTML = Object.keys(data.bless).map(attr => {
-                const bLv = blessData.reduce((acc, c) => c.attr === attr ? acc + c.lv : acc, 0);
-                const cls = bLv >= data.bless[attr] ? "status-met" : "";
-                return `<div class="target-item ${cls}"><span>${attr}</span><span>${bLv}/${data.bless[attr]}</span></div>`;
+            // 2. 渲染祝福 (享受巴武)
+            document.getElementById('blessTargetDisplay').innerHTML = Object.keys(config.bless).map(a => {
+                const bBase = blessData.reduce((acc, c) => c.attr === a ? acc + c.lv : acc, 0);
+                const bTotal = bBase + (isBahamut && bBase > 0 ? 1 : 0);
+                const target = config.bless[a];
+                return `<div class="target-item ${bTotal>=target?'status-met':''}"><span>${a}</span><span>${bTotal}/${target}</span></div>`;
             }).join('');
 
-            // 因子目标看板 (基础等级判定溢出)
-            const fT = {};
-            data.factors.forEach(f => { fT[f] = (fT[f] || 0) + 15; });
+            // 3. 渲染因子 (享受巴武)
+            const fT = {}; config.factors.forEach(f => fT[f] = (fT[f] || 0) + 15);
             document.getElementById('factorTargetDisplay').innerHTML = Object.keys(fT).map(attr => {
-                const cur = currentStats[attr] || 0;
-                const cap = hardCaps[attr] || 15;
-                const base = cur - (isBahamut && cur>0 ? 1 : 0);
-                let cls = base > cap ? "status-over" : (cur > 0 ? "status-met" : "");
-                return `<div class="target-item ${cls}"><span>${attr}</span><span>${cur}/${fT[attr]}</span></div>`;
+                const baseLv = stats[attr] || 0;
+                const finalLv = baseLv + (isBahamut && baseLv > 0 ? 1 : 0);
+                const target = fT[attr];
+                
+                let cls = "";
+                if (baseLv > target) cls = "status-over"; // 基础就超标 -> 红
+                else if (finalLv >= target) cls = "status-met"; // 最终达标 -> 绿
+
+                return `<div class="target-item ${cls}"><span>${attr}</span><span>${finalLv}/${target}</span></div>`;
             }).join('');
 
-            // 右侧选项池
-            const pool = ["空缺", ...new Set([...data.factors, ...Object.keys(data.bless)])];
-            document.getElementById('blessInputs').innerHTML = blessData.map((d, i) => `
-                <div class="input-row">
-                    <select onchange="update('bless', ${i}, 'attr', this.value)">${pool.map(a => `<option value="${a}" ${d.attr===a?'selected':''}>${a}</option>`).join('')}</select>
-                    <input type="number" class="lv-input" value="${d.lv}" oninput="update('bless', ${i}, 'lv', parseInt(this.value)||0)">
-                </div>`).join('');
+            // 4. 渲染因子录入区 (处理+号锁定)
+            const currentRolePool = ["空缺", ...new Set([...config.factors, ...Object.keys(config.bless)])];
+            
+            const drawSelects = (container, data, isBless) => {
+                document.getElementById(container).innerHTML = data.map((d, i) => {
+                    // 检查主属性是否带 +
+                    const isPlusMain = !isBless && (d.main.endsWith("+") || ["二王+","七星+","专属+"].includes(d.main));
+                    
+                    return `
+                    <div class="slot-row">
+                        <span class="slot-label">${isBless?'祝福'+(i+1):'槽位'+(i+1)}</span>
+                        <select onchange="upd('${isBless?'bless':'factor'}', ${i}, '${isBless?'attr':'main'}', this.value)">
+                            ${currentRolePool.map(a => `<option value="${a}" ${(isBless?d.attr:d.main)===a?'selected':''}>${a}</option>`).join('')}
+                            ${!currentRolePool.includes(isBless?d.attr:d.main) ? `<option value="${isBless?d.attr:d.main}" selected>${isBless?d.attr:d.main}</option>` : ''}
+                        </select>
+                        ${!isBless?`<select ${isPlusMain?'disabled style="background:#eee"':''} onchange="upd('factor', ${i}, 'sub', this.value)">
+                            ${isPlusMain ? `<option>固定(N/A)</option>` : ''}
+                            ${currentRolePool.map(a => `<option value="${a}" ${!isPlusMain && d.sub===a?'selected':''}>${a}</option>`).join('')}
+                            ${!isPlusMain && !currentRolePool.includes(d.sub) ? `<option value="${d.sub}" selected>${d.sub}</option>` : ''}
+                        </select>`:''}
+                        <input type="number" class="lv-input" value="${d.lv}" oninput="upd('${isBless?'bless':'factor'}', ${i}, 'lv', parseInt(this.value)||0)">
+                    </div>`
+                }).join('');
+            };
+            drawSelects('blessInputs', blessData, true);
+            drawSelects('factorInputs', factorData, false);
 
-            document.getElementById('factorInputs').innerHTML = factorData.map((d, i) => `
-                <div class="input-group">
-                    <div style="font-weight:bold; font-size:12px; color:var(--brown);">因子位 ${i+1}</div>
-                    <div class="input-row">
-                        <select onchange="update('factor', ${i}, 'main', this.value)">${pool.map(a => `<option value="${a}" ${d.main===a?'selected':''}>${a}</option>`).join('')}</select>
-                        <select onchange="update('factor', ${i}, 'sub', this.value)">${pool.map(a => `<option value="${a}" ${d.sub===a?'selected':''}>${a}</option>`).join('')}</select>
-                        <input type="number" class="lv-input" value="${d.lv}" oninput="update('factor', ${i}, 'lv', parseInt(this.value)||0)">
-                    </div>
+            document.getElementById('poolGrid').innerHTML = poolData.map((s, i) => `
+                <div class="pool-item">
+                    <span><strong>${s.m}+${s.s}</strong> <span style="color:#666">(Lv.${s.l})</span></span>
+                    <button onclick="delPool(${i})" style="background:none; color:var(--red); padding:0; width:auto; font-size:16px;">×</button>
                 </div>`).join('');
         }
 
-        function update(type, i, field, val) {
-            if(type === 'bless') blessData[i][field] = val;
-            else factorData[i][field] = val;
+        function upd(t, i, f, v) { 
+            if(t==='bless') blessData[i][f]=v; 
+            else {
+                factorData[i][f]=v;
+                // 如果选了+号因子，强制副属性为空
+                if(f === 'main' && (v.endsWith("+") || ["二王+","七星+","专属+"].includes(v))) {
+                    factorData[i].sub = "固定(N/A)";
+                }
+            }
+            render(); 
+        }
+        function saveData() { 
+            localStorage.setItem('gbfr_bless_v13', JSON.stringify(blessData)); 
+            localStorage.setItem('gbfr_factor_v13', JSON.stringify(factorData)); 
+            localStorage.setItem('gbfr_pool_v13', JSON.stringify(poolData)); 
+            alert("立夏：数据保存成功！"); 
+        }
+        function addToPool() {
+            const m = document.getElementById('newMain').value, s = document.getElementById('newSub').value, l = parseInt(document.getElementById('newLv').value);
+            if(m!=="空缺") { poolData.push({m, s, l}); render(); }
+        }
+        function delPool(i) { poolData.splice(i, 1); render(); }
+        function resetData() { if(confirm("清空？")) { blessData=Array(3).fill(null).map(()=>({attr:"空缺",lv:0})); factorData=Array(12).fill(null).map(()=>({main:"空缺",sub:"空缺",lv:15})); render(); } }
+        function randomFill() {
+            const config = roleData[currentRole];
+            const targetSet = [...config.factors];
+            factorData = factorData.map(() => {
+                const getMain = () => Math.random() < 0.7 ? targetSet[Math.floor(Math.random()*targetSet.length)] : finalPool[Math.floor(Math.random()*finalPool.length)];
+                const getSub = () => Math.random() < 0.7 ? targetSet[Math.floor(Math.random()*targetSet.length)] : finalPool[Math.floor(Math.random()*finalPool.length)];
+                return { main: getMain(), sub: getSub(), lv: 15 };
+            });
             render();
         }
 
-        function resetData() { blessData = Array(3).fill(null).map(() => ({attr: "空缺", lv: 0})); factorData = Array(12).fill(null).map(() => ({main: "空缺", sub: "空缺", lv: 15})); render(); }
+        function autoOptimize() {
+            const config = roleData[currentRole];
+            const targetNeeds = {};
+            config.factors.forEach(f => targetNeeds[f] = (targetNeeds[f] || 0) + 15);
+            
+            // 已有基础 (仅计算祝福)
+            let currentFill = {};
+            Object.keys(targetNeeds).forEach(k => {
+                const bLv = blessData.reduce((acc, c) => c.attr === k ? acc + c.lv : acc, 0);
+                currentFill[k] = bLv; // 祝福不享受巴武计算在配装阶段，只计算基础值
+            });
+
+            const activeItems = factorData.filter(d => d.main !== "空缺").map(d => ({m: d.main, s: d.sub, l: d.lv}));
+            let candidates = [...activeItems, ...poolData];
+            // 去重逻辑：如果需要，可添加唯一ID，此处简单合并
+            const newLoadout = [];
+            
+            // 贪心算法
+            for (let i = 0; i < 12; i++) {
+                if (candidates.length === 0) {
+                    newLoadout.push({main: "空缺", sub: "空缺", lv: 15});
+                    continue;
+                }
+                candidates.forEach(cand => {
+                    let score = 0;
+                    const mNeed = (targetNeeds[cand.m] || 0) - (currentFill[cand.m] || 0);
+                    if (mNeed > 0) score += 10;
+                    
+                    if (cand.s !== "固定(N/A)") {
+                        const sNeed = (targetNeeds[cand.s] || 0) - (currentFill[cand.s] || 0);
+                        if (sNeed > 0) score += 10;
+                        if (mNeed > 0 && sNeed > 0) score += 5;
+                    }
+                    cand._score = score;
+                });
+                candidates.sort((a, b) => b._score - a._score);
+                const best = candidates[0];
+                if (best._score > 0) {
+                    newLoadout.push({ main: best.m, sub: best.s, lv: best.l });
+                    currentFill[best.m] = (currentFill[best.m] || 0) + best.l;
+                    if(best.s !== "固定(N/A)") currentFill[best.s] = (currentFill[best.s] || 0) + best.l;
+                    candidates.shift(); 
+                } else {
+                    newLoadout.push({main: "空缺", sub: "空缺", lv: 15});
+                }
+            }
+            factorData = newLoadout;
+            poolData = candidates; 
+            alert(`【${currentRole}】智能配装完成！\n剩余因子已自动入库。`);
+            render();
+        }
         init();
     </script>
 </body>
